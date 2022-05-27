@@ -2,17 +2,22 @@
 import './App.css';
 import React, {useState, useReducer} from 'react';
 
+// This constant variable: 'ACTIONS,' was created & set to an object to replace the hard-coded strings 'increment' & 'decrement' in previous version - some benefits of this hard-coded value: We have auto-complete, we won't have to worry about the mispelling a string & we can change values at anytime in one place.
+ const ACTIONS = {
+   INCREMENT : 'increment',
+   DECREMENT: 'decrement'
+ }
 
 function reducer(state, action){   //// In your reducer(), generally, you will have a conditional statement i.e switch statement or some type of if statement
 
 switch (action.type){             //This switch statement will perform an action on the current state variable based on the 'action.type' passed into it- in this case, 'increment', or 'decrement' - if anything outside of these two is passed into action.type-  default will execute, in this case, state variable will be sent back unchanged.
   
-  case 'increment':
+  case ACTIONS.INCREMENT:
   return {count: state.count + 1 }  // Will return state value + 1
 
   break;
 
-  case 'decrement':
+  case ACTIONS.DECREMENT:
   return {count: state.count - 1 } // Will return state value - 1
 
   break;
@@ -60,7 +65,7 @@ function App() {
     //                          Param Breakdown:  (State = {count:0}, Action = {type: 'increment'})
 
 function increment(){
-  dispatch({type: 'increment'})
+  dispatch({type: ACTIONS.INCREMENT})
 }
 
 
@@ -69,7 +74,7 @@ function increment(){
      // function decrement() -> Everytime we click '-' button, dispatch() calls -> function reducer({count:0}, decrement), passing {type: 'decrement"} as an argument.
     //                           Param Breakdown:  (State = {count:0}, Action = {type: 'decrement'})
 function decrement(){
-  dispatch({type: 'decrement'})
+  dispatch({type: ACTIONS.DECREMENT})
 }
 
 
