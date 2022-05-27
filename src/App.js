@@ -3,10 +3,25 @@ import './App.css';
 import React, {useState, useReducer} from 'react';
 
 
-function reducer(state, action){
+function reducer(state, action){   //// In your reducer(), generally, you will have a conditional statement i.e switch statement or some type of if statement
 
-  return {count: state.count +1 }  // Everytime we call dispatch, it is going to increment our count by 1. 
+switch (action.type){             //This switch statement will perform an action on the current state variable based on the 'action.type' passed into it- in this case, 'increment', or 'decrement' - if anything outside of these two is passed into action.type-  default will execute, in this case, state variable will be sent back unchanged.
+  
+  case 'increment':
+  return {count: state.count + 1 }  // Will return state value + 1
+
+  break;
+
+  case 'decrement':
+  return {count: state.count - 1 } // Will return state value - 1
+
+  break;
+
+  default:                      // It is good practice to add a default when using switch case, this default will return the original state unchanged.
+  return state
 }
+ 
+ }
 
 
 function App() {
@@ -39,17 +54,22 @@ function App() {
   
 
 
+// Original format: function reducer(state, action)
 
-    // function increment() -> everytime we click '+' button, dispatch() calls -> function reducer() 
-//- Which  at this time is only handling ONE state, our increment state a.k.a function increment(): It takes our count and adds one to it 
+    // function increment() -> Everytime we click '+' button, dispatch() calls -> function reducer({count:0}, increment), passing {type: 'increment"} as an argument.
+    //                          Param Breakdown:  (State = {count:0}, Action = {type: 'increment'})
 
 function increment(){
-  dispatch()
+  dispatch({type: 'increment'})
 }
 
 
-function decrement(){
 
+     
+     // function decrement() -> Everytime we click '-' button, dispatch() calls -> function reducer({count:0}, decrement), passing {type: 'decrement"} as an argument.
+    //                           Param Breakdown:  (State = {count:0}, Action = {type: 'decrement'})
+function decrement(){
+  dispatch({type: 'decrement'})
 }
 
 
