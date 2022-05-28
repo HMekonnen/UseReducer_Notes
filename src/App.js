@@ -1,132 +1,85 @@
+import "./App.css";
+import React, { useReducer, useState } from "react";
+import Todo from "./Todo.js";
 
-import './App.css';
-import React, {useState, useReducer} from 'react';
+export const ACTIONS = {              // export preceeds const because we want to export ACTIONS variable to "Todo.js"
+  ADD_TODO: "add-todo",               // Adds an item to Todo Array
+  TOGGLE_TODO: "toggle-todo",         // Marks complete or uncomplete  - item turns light grey when toggled to complete
+  DELETE_TODO: "delete-todo",         // Filters list of Todo and displays everything but the 'deleted' item 
+};
 
-// This constant variable: 'ACTIONS,' was created & set to an object to replace the hard-coded strings 'increment' & 'decrement' in previous version - some benefits of this hard-coded value: We have auto-complete, we won't have to worry about the mispelling a string & we can change values at anytime in one place.
- const ACTIONS = {
-   INCREMENT : 'increment',
-   DECREMENT: 'decrement'
- }
+function reducer(todos, action) {     // params
 
-function reducer(state, action){   //// In your reducer(), generally, you will have a conditional statement i.e switch statement or some type of if statement
+  switch (action.type) {              // Will perform an action based on the action.type that is passed into function reducer()
+    case ACTIONS.ADD_TODO:
+      return [...todos, newTodo(action.payload.name)];      // returns -> ..todos = all of our current todos, then we add on->  newToDo(new todo item from input)
 
-switch (action.type){             //This switch statement will perform an action on the current state variable based on the 'action.type' passed into it- in this case, 'increment', or 'decrement' - if anything outside of these two is passed into action.type-  default will execute, in this case, state variable will be sent back unchanged.
-  
-  case ACTIONS.INCREMENT:
-  return {count: state.count + 1 }  // Will return state value + 1
+      //                ^ Without including 'payload' in function handleSubmit() below,
+      //                    ACTIONS.ADD_TODO in function reducer() would not have access to 'action.payload.name'
+      //                       AKA the "name" variable that is found in the useState below.
+      break;
 
-  break;
+    case ACTIONS.TOGGLE_TODO:                                 
+      return todos.map((todo) => {                          // maps through todos - take all current todos - map over them to get a new list of todo's && we need to take the current todo that we've toggled and set it to complete/incomplete
+        if (todo.id === action.payload.id) {                // if todo.id is equal to the current id if thats the case, we want to
+          return { ...todo, complete: !todo.complete };     // return ...todo = the entire individual todo item , + complete: !todo.complete.. - it appears as !todo.complete because in our newtoDo, we marked complete as false so now, we'll set it to true.
+        }
+        return todo;                                        // else return todo item as incomplete - allows us to click toggle again to reverse marking item as complete
+      });
 
-  case ACTIONS.DECREMENT:
-  return {count: state.count - 1 } // Will return state value - 1
+      break;
 
-  break;
 
-  default:                      // It is good practice to add a default when using switch case, this default will return the original state unchanged.
-  return state
+
+    case ACTIONS.DELETE_TODO:                                               
+      return todos.filter((todo) => todo.id !== action.payload.id);          // "If the id of our todo (todo.id) is not equal to the payload.id (!==action.payload.id), then we keep it, otherwise we get rid of it."
+      break;
+
+    default:
+      return todos;                     // Staple default; if action.type = none of the above, return todos in the condition you received it
+  }
 }
- 
- }
 
+function newTodo(name) {                                   // newTodo function, param = name 
+
+  return { id: Date.now(), name: name, complete: false };    //- Returns a new "todo item" which includes:  id = date/time at time of creation, name (listed as a param and passed in as argument via input from form), and by default set 'complete': false -- because it's a new to-do item
+}
 
 function App() {
+  const [todos, dispatch] = useReducer(reducer, []); // Using a simple array because we are only going to have one thing in our state, so an object is not necessary.
+
+  //                                                  NB: dispatch handles all our our use cases - you no longer need to create so many handle's 
+
+  const [name, setName] = useState("");             // state variable to hold and set names for todo items -- using useState. When user inputs value into form, it will be set to "name" using setName function
 
 
-  const [state, dispatch] = useReducer(reducer, {count:0}) 
+  function handleSubmit(e) {                  // function handleSubmit() - handles form submissions - i.e handles user input upon submission - End result = creates a new todo item
+   
+    e.preventDefault();                                // Used in forms to prevent our page from refreshing
 
- 
-  
-  //   function reducer() = Function performed on "state"  in this case has an initial value of -> {count: 0} - to get "new state" .
-   //         Will take 2 diff params to start: 
-   //             Params = state, & action. 
+    dispatch({ type: ACTIONS.ADD_TODO, payload: { name: name } });               //dispatch(type,{name}) type = thing that you want to do- action, parameters for what we are performing-> payload. Payload was added because function reducer() did not have access to the "name" parameter of newTodo. "payload" = an object that contains all of the variable values we need to  perform the action - in this case, "ACTIONS.ADD_TODO" in function reducer(). NB: Technically, this can be named whatever you want, however, payload is the common namning convention.
 
-  //      The return value (items in array to the left of useReducer()) is going to be two portions- state, & dispatch: 
-  //              1. The State ->  {count: 0},
-  //              2. A Function called "dispatch" - what we call to update our state, it will call the function reducer() above, given state & action parameters.
-  
-       //   The current state, in this instance, {count:0} - is going to be sent as an argument to the "state" param in function reducer()
-      //    && whatever we call "dispatch" with, is going to be sent to the "action" param in function reducer(). 
- 
-     //         -->  function reducer() - will then return our newly updated "state". 
-  
-  //   N.B: If our state in useReducer() was not an object but a single value instead,  we would use "count" instead of state. 
-  //         Example of both: 
-  //                      Object ->      const [state,action] = useReducer(reducer,{count:0}) 
-  //                         vs
-  //                     Single Value -> const [count, action] = useReducer(reducer, 0)
-  
-  
-  
+    setName("");                                                        // function setName("") -  is set to empty strings and placed in this function so that after we submit the new to-do item, setName(" ") clears our input aka replaces it w/ empty string-> 
+  }
 
+  return (
+    <>
 
-// Original format: function reducer(state, action)
+      {/* Form for input -> handleSubmit controls what happens to our new todo item upon submitting */}
 
-    // function increment() -> Everytime we click '+' button, dispatch() calls -> function reducer({count:0}, increment), passing {type: 'increment"} as an argument.
-    //                          Param Breakdown:  (State = {count:0}, Action = {type: 'increment'})
+      <form onSubmit={handleSubmit}>      
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}       // onChange we are going to set a variable "e" to be that name -> setName(e.target.value)
+        />
+      </form>
 
-function increment(){
-  dispatch({type: ACTIONS.INCREMENT})
+      {todos.map((todo) => {                              // printing out all of our todo's
+        return <Todo key={todo.id} todo={todo} dispatch={dispatch} />;   
+      })}
+    </>
+  );
 }
-
-
-
-     
-     // function decrement() -> Everytime we click '-' button, dispatch() calls -> function reducer({count:0}, decrement), passing {type: 'decrement"} as an argument.
-    //                           Param Breakdown:  (State = {count:0}, Action = {type: 'decrement'})
-function decrement(){
-  dispatch({type: ACTIONS.DECREMENT})
-}
-
-
-return (
-  <>
-  
-  <button onClick={decrement}> - </button>
- 
-
-  <span> {state.count }</span>
-
-  <button onClick={increment}> + </button>
-  
-  
-  </>
-);
-}
-
-
-// For Comparison: All the above is the useReducer() equivalent of the useState() example below: 
-
-// function App() {
-
-// const [count, setCount]=useState(0)
-
-
-
-//        function increment(){
-//          setCount(prevCount => prevCount + 1)
-//         }
-
-
-//        function decrement(){
-//         setCount(prevCount=> prevCount - 1)
-//        }
-
-
-
-//   return (
-//     <>
-    
-//         <button onClick={decrement}> - </button>
-
-      //        <span>{count}</span> 
-
-//          <button onClick={increment}> + </button>
-    
-    
-//     </>
-//   );
-// }
-
-
 
 export default App;
